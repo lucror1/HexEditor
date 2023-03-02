@@ -6,9 +6,9 @@ const hostname = "127.0.0.1";
 const port = 8080;
 
 const server = http.createServer((req, res) => {
-    let filePath = "." + req.url;
-    if (filePath == "./") {
-        filePath = "./index.html";
+    let filePath = "./www" + req.url;
+    if (filePath == "./www/") {
+        filePath = "./www/index.html";
     }
 
     let extName = path.extname(filePath);
@@ -35,7 +35,7 @@ const server = http.createServer((req, res) => {
     fs.readFile(filePath, (error, content) => {
         if (error) {
             if (error.code === "ENOENT") {
-                fs.readFile("./404.html", function(error, content) {
+                fs.readFile("./www/404.html", function(error, content) {
                     res.writeHead(404, {
                         "Content-Type": "text/html"
                     });
