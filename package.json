@@ -2,7 +2,7 @@
   "name": "hexeditor",
   "version": "1.0.0",
   "description": "A collaborative hex map editor.",
-  "main": "app.js",
+  "main": "server/app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

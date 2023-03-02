@@ -1,6 +1,5 @@
-// https://www.redblobgames.com/grids/hexagons/
-
 import * as PIXI from "pixi.js";
+export { Hex, HexStorage };
 
 // Stores a 2D array of Hexes, allowing for negative indices
 class HexStorage {
@@ -80,7 +79,7 @@ class Hex {
     #s: number;
     #graphics: PIXI.Graphics;
 
-    constructor(q: number, r: number, color: number=0xffffff) {
+    constructor(app: PIXI.Application, q: number, r: number, color: number=0xffffff) {
         this.#q = q;
         this.#r = r;
         this.#s = -q-r;
@@ -163,73 +162,3 @@ class Hex {
         return this.#graphics;
     }
 }
-
-class InteractionManager {
-    static #tintColor = 0xffff00;
-
-    #selected: Hex;
-
-    constructor() {
-        this.#selected = null;
-    }
-
-    handleClick(evt: MouseEvent) {
-        this.#selectHex(evt);
-    }
-
-    handleKey(evt: KeyboardEvent) {
-        switch (evt.code) {
-            case "Escape":
-                this.#unselectHex();
-                break;
-        }
-    }
-
-    #selectHex(evt: MouseEvent) {
-        this.#unselectHex();
-
-        let coord = Hex.rectToAxial(evt.clientX, evt.clientY);
-        this.#selected = arr.get(coord.q, coord.r);
-        if (this.#selected === null) {
-            return;
-        }
-        this.#selected.graphics.tint = InteractionManager.#tintColor;
-    }
-
-    #unselectHex() {
-        if (this.#selected !== null) {
-            this.#selected.graphics.tint = 0xffffff;
-            this.#selected = null;
-        }
-    }
-}
-
-await PIXI.Assets.init({
-    manifest: "manifest.json"
-});
-PIXI.Assets.backgroundLoadBundle(["map-icons"]);
-
-const app = new PIXI.Application({
-    resizeTo: window,
-    background: "#333333"
-});
-document.body.appendChild(app.view as unknown as Node);
-
-const arr = new HexStorage();
-for (let q = 10; q <= 16; q++) {
-    for (let r = 0; r <= 6; r++) {
-        if (Math.abs(-(q - 13)-(r - 3)) > 3) {
-            continue;
-        }
-
-        arr.set(new Hex(q, r));
-    }
-}
-
-const manager = new InteractionManager();
-document.addEventListener("pointerdown", (evt: MouseEvent) => {
-    manager.handleClick(evt);
-});
-document.addEventListener("keydown", (evt: KeyboardEvent) => {
-    manager.handleKey(evt);
-});
