@@ -1,9 +1,7 @@
 .vscode
 node_modules
-scripts/*.js
-scripts/*.js.map
-scripts/**/*.js
-scripts/**/*.js.map
+www/**/*.js
+www/**/*.js.map
 server/*.js
 server/*.js.map
 server/**/*.js
