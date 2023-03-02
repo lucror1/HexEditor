@@ -200,9 +200,10 @@ class InteractionManager {
     }
 }
 
-PIXI.Assets.init({
+await PIXI.Assets.init({
     manifest: "manifest.json"
 });
+PIXI.Assets.backgroundLoadBundle(["map-icons"]);
 
 const app = new PIXI.Application({
     resizeTo: window,
