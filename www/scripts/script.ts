@@ -19,12 +19,14 @@ class HexStorage {
 
     get(q: number, r: number): Hex {
         let active = this.#selectArray(q, r);
+        let aq = Math.abs(q);
+        let ar = Math.abs(r);
 
-        if (active.length <= q || active[q].length <= r) {
+        if (aq >= active.length || active[aq] === undefined || ar >= active[aq].length) {
             return null;
         }
 
-        return active[Math.abs(q)][Math.abs(r)];
+        return active[aq][ar] || null;
     }
 
     set(h: Hex): void {
@@ -85,11 +87,6 @@ class Hex {
 
         this.#graphics = this.#initGraphics(color);
         app.stage.addChild(this.#graphics);
-
-        /* this.#graphics.interactive = true;
-        this.#graphics.on("pointerdown", () => {
-            console.log(`${q}, ${r}`);
-        }); */
     }
 
     #initGraphics(color: number): PIXI.Graphics {
@@ -104,8 +101,6 @@ class Hex {
         g.pivot.x = g.width / 2;
         g.pivot.y = g.height / 2;
         let coords = Hex.axialToRect(this.#q, this.#r);
-        //g.x = app.screen.width / 2 + coords.x;
-        //g.y = app.screen.height / 2 + coords.y;
         g.x = coords.x;
         g.y = coords.y;
 
@@ -178,12 +173,20 @@ class InteractionManager {
         this.#selected = null;
     }
 
-    handleHexClick(evt: MouseEvent) {
-        this.selectHex(evt);
+    handleClick(evt: MouseEvent) {
+        this.#selectHex(evt);
     }
 
-    selectHex(evt: MouseEvent) {
-        this.unselectHex();
+    handleKey(evt: KeyboardEvent) {
+        switch (evt.code) {
+            case "Escape":
+                this.#unselectHex();
+                break;
+        }
+    }
+
+    #selectHex(evt: MouseEvent) {
+        this.#unselectHex();
 
         let coord = Hex.rectToAxial(evt.clientX, evt.clientY);
         this.#selected = arr.get(coord.q, coord.r);
@@ -193,9 +196,10 @@ class InteractionManager {
         this.#selected.graphics.tint = InteractionManager.#tintColor;
     }
 
-    unselectHex() {
+    #unselectHex() {
         if (this.#selected !== null) {
             this.#selected.graphics.tint = 0xffffff;
+            this.#selected = null;
         }
     }
 }
@@ -224,10 +228,8 @@ for (let q = 10; q <= 16; q++) {
 
 const manager = new InteractionManager();
 document.addEventListener("pointerdown", (evt: MouseEvent) => {
-    manager.handleHexClick(evt);
+    manager.handleClick(evt);
 });
 document.addEventListener("keydown", (evt: KeyboardEvent) => {
-    if (evt.code === "Escape") {
-        manager.unselectHex();
-    }
+    manager.handleKey(evt);
 });
