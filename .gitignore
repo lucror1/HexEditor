@@ -4,4 +4,8 @@ scripts/*.js
 scripts/*.js.map
 scripts/**/*.js
 scripts/**/*.js.map
+server/*.js
+server/*.js.map
+server/**/*.js
+server/**/*.js.map
 package-lock.json
