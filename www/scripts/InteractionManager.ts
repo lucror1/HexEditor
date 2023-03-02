@@ -10,6 +10,14 @@ class InteractionManager {
     constructor(map: HexStorage) {
         this.#selected = null;
         this.#map = map;
+
+        // Register event listeners
+        document.addEventListener("pointerdown", (evt: MouseEvent) => {
+            this.handleClick(evt);
+        });
+        document.addEventListener("keydown", (evt: KeyboardEvent) => {
+            this.handleKey(evt);
+        });
     }
 
     handleClick(evt: MouseEvent) {
@@ -32,12 +40,24 @@ class InteractionManager {
         if (this.#selected === null) {
             return;
         }
-        this.#selected.graphics.tint = InteractionManager.#tintColor;
+        //this.#selected.graphics.tint = InteractionManager.#tintColor;
+        let g = this.#selected.graphics;
+        g.clear();
+        g.beginFill(this.#selected.color);
+        g.lineStyle(Hex.highlightLineStyle);
+        g.zIndex = Hex.closerZIndex;
+        g.drawPolygon(Hex.hexPoints);
     }
 
     #unselectHex() {
         if (this.#selected !== null) {
-            this.#selected.graphics.tint = 0xffffff;
+            //this.#selected.graphics.tint = 0xffffff;
+            let g = this.#selected.graphics;
+            g.clear();
+            g.beginFill(this.#selected.color);
+            g.lineStyle(Hex.defaultLineStyle);
+            g.zIndex = Hex.defaultZIndex;
+            g.drawPolygon(Hex.hexPoints);
             this.#selected = null;
         }
     }

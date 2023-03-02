@@ -1,4 +1,5 @@
 import * as PIXI from "pixi.js";
+import { TerrainType, TerrainStyle, TerrainMap } from "./Terrain.js";
 export { Hex, HexStorage };
 
 // Stores a 2D array of Hexes, allowing for negative indices
@@ -69,6 +70,19 @@ class Hex {
         {x: Hex.size/2,     y: 0                    },
         {x: Hex.size * 3/2, y: 0                    }
     ];
+    static defaultLineStyle: PIXI.ILineStyleOptions = {
+        width: 1,
+        color: 0x000000,
+        alignment: 0
+    };
+    static highlightLineStyle: PIXI.ILineStyleOptions = {
+        width: 4,
+        color: 0xffff00,
+        alignment: 0.5
+    };
+    static defaultZIndex = 0;
+    static furtherZIndex = -1;
+    static closerZIndex = 1;
 
     static #debug = {
         showCoords: false
@@ -78,30 +92,33 @@ class Hex {
     #r: number;
     #s: number;
     #graphics: PIXI.Graphics;
+    #terrain: TerrainType;
+    #style: TerrainStyle;
 
-    constructor(app: PIXI.Application, q: number, r: number, color: number=0xffffff) {
+    constructor(app: PIXI.Application, q: number, r: number,
+                terrainType: TerrainType=TerrainType.Plains) {
         this.#q = q;
         this.#r = r;
         this.#s = -q-r;
+        this.#terrain = terrainType;
+        this.#style = TerrainMap.get(terrainType);
 
-        this.#graphics = this.#initGraphics(color);
+        this.#graphics = this.#initGraphics(this.#style.color);
         app.stage.addChild(this.#graphics);
     }
 
     #initGraphics(color: number): PIXI.Graphics {
         let g = new PIXI.Graphics();
         g.beginFill(color);
-        g.lineStyle({
-            width: 1,
-            color: 0x000000,
-            alignment: 0
-        });
+        g.lineStyle(Hex.defaultLineStyle);
         g.drawPolygon(Hex.hexPoints);
         g.pivot.x = g.width / 2;
         g.pivot.y = g.height / 2;
         let coords = Hex.axialToRect(this.#q, this.#r);
         g.x = coords.x;
         g.y = coords.y;
+
+        g.zIndex = Hex.defaultZIndex;
 
         if (Hex.#debug.showCoords) {
             const style = new PIXI.TextStyle({
@@ -160,5 +177,13 @@ class Hex {
 
     get graphics(): PIXI.Graphics {
         return this.#graphics;
+    }
+
+    get style(): TerrainStyle {
+        return this.#style;
+    }
+
+    get color(): number | undefined {
+        return this.#style.color;
     }
 }
