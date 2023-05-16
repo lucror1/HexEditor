@@ -11,5 +11,8 @@
   "type": "module",
   "dependencies": {
     "pixi.js": "^7.1.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.1.5"
   }
 }

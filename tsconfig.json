@@ -5,6 +5,11 @@
         "sourceMap": true,
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true,
-        "alwaysStrict": true
-    }
+        "alwaysStrict": true,
+        "skipLibCheck": true,
+        "outDir": "build"
+    },
+    "include": [
+        "src/"
+    ]
 }
