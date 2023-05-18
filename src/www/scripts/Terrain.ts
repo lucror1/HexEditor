@@ -1,5 +1,3 @@
-export { TerrainType, TerrainStyle, terrainMap as TerrainMap };
-
 enum TerrainType {
     Plains = "Plains",
     Forest = "Forest",
@@ -47,3 +45,5 @@ const terrainMap = new Map<TerrainType, TerrainStyle>();
 for (let terrain of terrains) {
     terrainMap.set(terrain.name as TerrainType, terrain.style);
 }
+
+export { TerrainType, TerrainStyle, terrainMap as TerrainMap };

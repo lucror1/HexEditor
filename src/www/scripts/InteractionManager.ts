@@ -1,5 +1,4 @@
 import { Hex, HexStorage } from "./Hex.js";
-export { InteractionManager };
 
 class InteractionManager {
     static #tintColor = 0xffff00;
@@ -62,3 +61,5 @@ class InteractionManager {
         }
     }
 }
+
+export { InteractionManager };

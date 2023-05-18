@@ -1,23 +1,16 @@
 import express from "express";
-import { app } from "./routes.js";
-import { database } from "./database.js";
+//import router from "./routes/api.js";
+import rootRoutes from "./routes/rootRoute.js"
+import loginRoutes from "./routes/loginRoute.js";
+import editorRoutes from "./routes/editorRoute.js";
+
+const app = express()
+
+app.use("/", rootRoutes);
+app.use("/api/login", loginRoutes);
+app.use("/api/editor", editorRoutes);
 
 const port = 8080;
-
-database.connect((err) => {
-    if (err) {
-        console.log("error");
-        throw err;
-    }
-    console.log("Connected!");
-    database.query("SHOW TABLES;", (err, result, fields) => {
-        if (err) {
-            throw err;
-        }
-        console.log(result);
-    });
-});
-
 app.listen(port, () => {
     console.log(`Listening on ${port}`);
 });

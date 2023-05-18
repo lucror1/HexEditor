@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import { TerrainType, TerrainStyle, TerrainMap } from "./Terrain.js";
-export { Hex, HexStorage };
 
 // Stores a 2D array of Hexes, allowing for negative indices
 class HexStorage {
@@ -187,3 +186,5 @@ class Hex {
         return this.#style.color;
     }
 }
+
+export { Hex, HexStorage };
