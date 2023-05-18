@@ -1,16 +1,23 @@
-import * as http from "node:http";
-import * as fs from "node:fs";
-import * as path from "node:path";
+import express from "express";
+import { app } from "./routes.js";
+import { database } from "./database.js";
 
-const hostname = "127.0.0.1";
 const port = 8080;
 
-const server = http.createServer((req, res) => {
-    res.statusCode = 200;
-    res.setHeader("Content-Type", "text/plain");
-    res.end("Hello world!\n");
+database.connect((err) => {
+    if (err) {
+        console.log("error");
+        throw err;
+    }
+    console.log("Connected!");
+    database.query("SHOW TABLES;", (err, result, fields) => {
+        if (err) {
+            throw err;
+        }
+        console.log(result);
+    });
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+app.listen(port, () => {
+    console.log(`Listening on ${port}`);
 });
