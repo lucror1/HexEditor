@@ -3,12 +3,8 @@ export { app };
 
 const app = express();
 
-app.get("/", (req, res) => {
-    res.send("Hello world!");
-});
+app.use(express.static("../www"));
 
-app.get("/status", (req, res) => {
-    res.send({
-        status: "working"
-    });
+app.get("/api", (req, res) => {
+    res.send("Hello world!");
 });
