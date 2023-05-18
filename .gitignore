@@ -7,3 +7,5 @@ server/*.js.map
 server/**/*.js
 server/**/*.js.map
 package-lock.json
+src/server/secrets.json
+build/
