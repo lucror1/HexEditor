@@ -2,3 +2,30 @@ body {
     margin: 0px;
     overflow: hidden;
 }
+
+.input-sec {
+    margin: 10px;
+}
+
+.input-sec label {
+    display: inline-block;
+    width: 200px;
+    text-align: left;
+}
+
+.input-sec input {
+    width: 200px;
+    height: 25px;
+}
+
+.requirements {
+    text-align: left;
+    margin: auto;
+}
+
+#auth-form {
+    text-align: center;
+    width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}

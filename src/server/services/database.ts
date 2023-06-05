@@ -1,8 +1,15 @@
 import mysql from "mysql";
-import fs from "fs";
+import dotenv from "dotenv";
 
-const secrets = JSON.parse(fs.readFileSync("./secrets.json", "utf-8"));
-const database = mysql.createConnection(secrets.db);
+dotenv.config();
+
+const database = mysql.createConnection({
+    host: process.env.DBHOST,
+    port: process.env.DBPORT,
+    user: process.env.DBUSER,
+    password: process.env.DBPASSWORD,
+    database: process.env.DBDATABASE
+});
 
 database.connect((err) => {
     if (err) {

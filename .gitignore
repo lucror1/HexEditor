@@ -7,5 +7,5 @@ server/*.js.map
 server/**/*.js
 server/**/*.js.map
 package-lock.json
-src/server/secrets.json
+src/server/.env
 build/

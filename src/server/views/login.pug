@@ -1,0 +1,19 @@
+doctype html
+html
+    head
+        script(src="scripts/login.js")
+        link(href="/main.css" rel="stylesheet")
+        title HexEditor
+    body
+        div(id="auth-form")
+            h1 Log in to HexEditor
+            form(action="/login" method="post" data-csrftoken=csrftoken)
+                section(class="input-sec")
+                    label(for="username") Username
+                    div
+                        input(id="username" name="username")
+                section(class="input-sec")
+                    label(for="password") Password
+                    div
+                        input(id="password" name="password" type="password")
+                button Log in
