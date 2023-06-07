@@ -40,7 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             body: JSON.stringify({
                 username: form.username.value,
-                password: form.password.value
+                password: form.password.value,
+                accessCode: form.accessCode.value
             })
         }).then((res) => {
             res.json().then((data) => {

@@ -21,6 +21,10 @@ html
                     label Retype password
                     div
                         input(id="password2" type="password" minlength="12" maxlength="100")
+                section(class="input-sec")
+                    label Access code
+                    div
+                        input(id="accessCode" name="accessCode" required)
                 button Sign up
             div(class="requirements")
                 p Your username must meet the following requirements:
@@ -34,3 +38,5 @@ html
                     li No more than 100 characters in length
                     li Contains at least 1 lowercase letter
                     li Contains at least 1 uppercase letter
+            p
+                a(href="/login") Or log in

@@ -47,5 +47,17 @@ function requireAuth(req, res, next) {
     next();
 }
 
-export { generateToken, validateToken, requireAuth };
-export default { generateToken, validateToken, requireAuth };
+// Require that a user not be authenticated, or else redirect to the root page
+function requireNoAuth(req, res, next) {
+    if (req.session.authenticated === true) {
+        console.log(req.url);
+        console.log(req.session);
+        res.redirect("/");
+        return;
+    }
+
+    next();
+}
+
+export { generateToken, validateToken, requireAuth, requireNoAuth };
+export default { generateToken, validateToken, requireAuth, requireNoAuth };

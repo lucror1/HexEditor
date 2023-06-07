@@ -7,12 +7,6 @@ import { sendError } from "../common.js";
 dotenv.config();
 
 function loginGet(req, res) {
-    // Check if already authenticated
-    if (req.session.authenticated) {
-        res.redirect("/");
-        return;
-    }
-
     res.render("login", {
         csrftoken: req.session.csrftoken
     });
@@ -72,23 +66,18 @@ async function loginPost(req, res) {
 }
 
 function signupGet(req, res) {
-    // Check if already authenticated
-    if (req.session.authenticated) {
-        res.redirect("/");
-        return;
-    }
-
     res.render("signup", {
         csrftoken: req.session.csrftoken
     });
 }
 
 async function signupPost(req, res) {
-    // Verify presence of username and password
+    // Verify presence of username, password, and access code
     const username = req.body.username;
     const password = req.body.password;
+    const accessCode = req.body.accessCode;
     
-    // Validate username and password
+    // Validate username, password, and access code
     let userError = validateUsername(username);
     if (userError !== null) {
         sendError(res, userError);
@@ -101,23 +90,18 @@ async function signupPost(req, res) {
         return;
     }
 
+    let codeError = validateAccessCode(accessCode);
+    if (codeError !== null) {
+        sendError(res, codeError);
+        return;
+    }
+
     // Compute hash of password w/ pepper
     const hash = await argon2.hash(password, {
         secret: Buffer.from(process.env.ARGONSECRET)
     });
 
     // Add user to database
-    /* connection.query("INSERT INTO User (username, password) VALUES (?, ?);", [username, hash],
-        function(error, results, fields) {
-            if (!error) {
-                res.send({
-                    error: false
-                });
-            } else {
-                detectSQLError(res, error);
-            }
-        }
-    ); */
     const error = await connection.addUser(username, hash);
     if (error != null) {
         sendError(res, error);
@@ -157,6 +141,14 @@ function validatePassword(password: string): string {
         return "bad password";
     }
 
+    return null;
+}
+
+// Prevent people from signing up without knowing the code
+function validateAccessCode(accessCode: string): string {
+    if (accessCode !== process.env.ACCESSCODE) {
+        return "bad code";
+    }
     return null;
 }
 
