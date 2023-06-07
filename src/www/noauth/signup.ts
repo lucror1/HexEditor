@@ -33,13 +33,25 @@ document.addEventListener("DOMContentLoaded", () => {
         // Custom post data
         fetch("/signup", {
             method: "POST",
+            mode: "same-origin",
             headers: {
-                "Content-Type": "multipart/form-data",
+                "Content-Type": "application/json",
                 "X-CSRF-TOKEN": token
             },
-            body: new FormData(form)
-        }).then((data) => {
-            console.log(data);
+            body: JSON.stringify({
+                username: form.username.value,
+                password: form.password.value
+            })
+        }).then((res) => {
+            res.json().then((data) => {
+                if (data.error) {
+                    // TODO: handle errors
+                    console.log(data);
+                } else {
+                    alert("Sign up successful. Redirecting...");
+                    window.location.replace(`${window.location.origin}/login`);
+                }
+            });
         });
     });
 });
