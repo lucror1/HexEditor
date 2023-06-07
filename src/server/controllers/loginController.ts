@@ -16,11 +16,11 @@ async function loginPost(req, res) {
     // Verify presence of username and password
     const username = req.body.username;
     const password = req.body.password;
-    if (username === undefined || password === undefined) {
+    if (!username) {
         sendError(res, "no username")
         return;
     }
-    if (password === undefined) {
+    if (!password) {
         sendError(res, "no password");
         return;
     }
@@ -125,10 +125,6 @@ function validateUsername(username: string): string {
 }
 
 function validatePassword(password: string): string {
-    if (password === undefined) {
-        return "no password";
-    }
-
     if (password.length < 12) {
         return "short password";
     }

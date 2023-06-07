@@ -6,6 +6,7 @@ import loginRoutes from "./routes/loginRoute.js";
 import editorRoutes from "./routes/editorRoute.js";
 import rootRoutes from "./routes/rootRoute.js"
 import error404 from "./routes/errorRoute.js";
+import { detectMiddlewareError } from "./common.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(session({
     }
 }));
 app.use(express.json());
+app.use(detectMiddlewareError);
 app.use(express.urlencoded({extended: true}));
 
 // Temporary, just for testing

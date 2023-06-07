@@ -46,8 +46,26 @@ document.addEventListener("DOMContentLoaded", () => {
         }).then((res) => {
             res.json().then((data) => {
                 if (data.error) {
-                    // TODO: handle errors
-                    console.log(data);
+                    switch(data.type) {
+                        case "short username":
+                            alert("Your username is too short.");
+                            break;
+                        case "long username":
+                            alert("Your username is too long.");
+                            break;
+                        case "short password":
+                            alert("Your password is too short.");
+                            break;
+                        case "long password":
+                            alert("Your password is too long.");
+                            break;
+                        case "bad password":
+                            alert("Your password does not meet the requirements.");
+                            break;
+                        case "bad code":
+                            alert("The access code you provided is incorrect.");
+                            break;
+                    }
                 } else {
                     alert("Sign up successful. Redirecting...");
                     window.location.replace(`${window.location.origin}/login`);
