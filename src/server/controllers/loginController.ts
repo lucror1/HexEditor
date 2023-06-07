@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import argon2 from "argon2";
 
-import { connection } from "../services/database.js";
+import loginService from "../services/loginService.js";
 import { sendError } from "../common.js";
 
 dotenv.config();
@@ -32,7 +32,7 @@ async function loginPost(req, res) {
     }
 
     // Get user's hash from db
-    const info = await connection.getAuthInfo(username);
+    const info = await loginService.getAuthInfo(username);
 
     // If info in undefined, that user does not exist
     if (info === undefined) {
@@ -102,7 +102,7 @@ async function signupPost(req, res) {
     });
 
     // Add user to database
-    const error = await connection.addUser(username, hash);
+    const error = await loginService.addUser(username, hash);
     if (error != null) {
         sendError(res, error);
         return;

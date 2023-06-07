@@ -7,7 +7,7 @@ const router = express.Router();
 router.use("/noauth", express.static("../www/noauth"));
 router.use(
     // TODO: reenable authorization after development
-    //securityController.requireAuth
+    //securityController.requireAuth,
     securityController.generateToken,
     rootController.getIndex,
     express.static("../www")
