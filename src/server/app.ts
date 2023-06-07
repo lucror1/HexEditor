@@ -25,7 +25,7 @@ app.use(session({
     }
 }));
 app.use(express.json());
-app.use(detectMiddlewareError);
+//app.use(detectMiddlewareError);
 app.use(express.urlencoded({extended: true}));
 
 // Temporary, just for testing
