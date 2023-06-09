@@ -1,5 +1,6 @@
 import mysql from "mysql2/promise";
 import dotenv from "dotenv";
+import logger from "./logging.js";
 
 dotenv.config();
 
@@ -18,14 +19,13 @@ function detectSQLError(error): string {
         case "ER_DATA_TOO_LONG":
             return "long username";
         case "PROTOCOL_CONNECTION_LOST":
+            logger.error("Connection with the database was lost");
             return "no database";
         default:
-            console.log(error);
+            logger.error(error.toString());
             return "unknown";
     }
 }
-
-//const connection = new Connection();
 
 export { connection, detectSQLError };
 export default { connection, detectSQLError };

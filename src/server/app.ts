@@ -7,11 +7,17 @@ import editorRoutes from "./routes/editorRoute.js";
 import rootRoutes from "./routes/rootRoute.js"
 import error404 from "./routes/errorRoute.js";
 import { detectMiddlewareError } from "./common.js";
+import { logger, logHTTPRequest} from "./services/logging.js";
 
 dotenv.config();
 
+logger.info("Starting application");
+
 const app = express();
 app.set("view engine", "pug");
+
+// Log HTTP requests
+app.use(logHTTPRequest);
 
 // TODO: use "secure" in production for HTTPS only cookies
 app.use(session({
@@ -38,5 +44,5 @@ app.use(error404);
 
 const port = 8080;
 app.listen(port, () => {
-    console.log(`Listening on ${port}`);
+    logger.info(`Listening on TCP ${port}`);
 });

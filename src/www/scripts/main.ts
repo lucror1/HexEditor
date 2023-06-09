@@ -16,12 +16,8 @@ app.stage.sortableChildren = true;
 document.body.appendChild(app.view as unknown as Node);
 
 const map = new HexStorage();
-for (let q = 10; q <= 16; q++) {
-    for (let r = 0; r <= 6; r++) {
-        if (Math.abs(-(q - 13)-(r - 3)) > 3) {
-            continue;
-        }
-
+for (let q = 0; q < 10; q++) {
+    for (let r = 0; r < 10; r++) {
         map.set(new Hex(app, q, r));
     }
 }
