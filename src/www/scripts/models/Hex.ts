@@ -1,5 +1,7 @@
-import * as PIXI from "pixi.js";
-import { TerrainType, TerrainStyle, TerrainMap } from "./Terrain.js";
+import { Graphics } from "pixi.js";
+
+import { TerrainType } from "../Terrain.js";
+import { displayManager } from "../Singletons.js";
 
 // Stores a 2D array of Hexes, allowing for negative indices
 class HexStorage {
@@ -28,17 +30,19 @@ class HexStorage {
         return active[aq][ar] || null;
     }
 
-    set(h: Hex): void {
-        let active = this.#selectArray(h.q, h.r);
-        let aQ = Math.abs(h.q);
-        let aR = Math.abs(h.r);
+    set(hex: Hex): void {
+        let active = this.#selectArray(hex.q, hex.r);
+        let aQ = Math.abs(hex.q);
+        let aR = Math.abs(hex.r);
 
         // If the array is too short, fill it
         if (active[aQ] === undefined) {
             active[aQ] = [];
         }
 
-        active[aQ][aR] = h;
+        active[aQ][aR] = hex;
+
+        displayManager.drawHex(hex);
     }
 
     // Select which array should be used based on the coordinate's sign
@@ -58,18 +62,18 @@ class HexStorage {
 }
 
 class Hex {
-    static size = 25;
-    static s3 = Math.sqrt(3);
-    static s32 = Math.sqrt(3)/2;
+    /* static #size = 25;
+    static #s3 = Math.sqrt(3);
+    static #s32 = Math.sqrt(3)/2;
     static hexPoints = [
-        {x: Hex.size * 2,   y: Hex.s32*Hex.size     },
-        {x: Hex.size * 3/2, y: Hex.s32*Hex.size * 2 },
-        {x: Hex.size / 2,   y: Hex.s32*Hex.size * 2 },
-        {x: 0,              y: Hex.s32*Hex.size     },
-        {x: Hex.size/2,     y: 0                    },
-        {x: Hex.size * 3/2, y: 0                    }
-    ];
-    static defaultLineStyle: PIXI.ILineStyleOptions = {
+        {x: Hex.#size * 2,   y: Hex.#s32*Hex.#size     },
+        {x: Hex.#size * 3/2, y: Hex.#s32*Hex.#size * 2 },
+        {x: Hex.#size / 2,   y: Hex.#s32*Hex.#size * 2 },
+        {x: 0,              y: Hex.#s32*Hex.#size     },
+        {x: Hex.#size/2,     y: 0                    },
+        {x: Hex.#size * 3/2, y: 0                    }
+    ]; */
+    /* static defaultLineStyle: PIXI.ILineStyleOptions = {
         width: 1,
         color: 0x000000,
         alignment: 0
@@ -81,32 +85,34 @@ class Hex {
     };
     static defaultZIndex = 0;
     static furtherZIndex = -1;
-    static closerZIndex = 1;
+    static closerZIndex = 1; */
 
-    static #debug = {
+    /* static #debug = {
         showCoords: false
-    };
+    }; */
 
     #q: number;
     #r: number;
     #s: number;
-    #graphics: PIXI.Graphics;
+    #graphics: Graphics;
     #terrain: TerrainType;
-    #style: TerrainStyle;
+    /* #style: TerrainStyle; */
 
-    constructor(app: PIXI.Application, q: number, r: number,
+    constructor(q: number, r: number,
                 terrainType: TerrainType=TerrainType.Plains) {
         this.#q = q;
         this.#r = r;
         this.#s = -q-r;
         this.#terrain = terrainType;
-        this.#style = TerrainMap.get(terrainType);
+        this.#graphics = new Graphics;
+        /* this.#style = TerrainMap.get(terrainType); */
 
-        this.#graphics = this.#initGraphics(this.#style.color);
-        app.stage.addChild(this.#graphics);
+        /* this.#graphics = this.#initGraphics(this.#style.color);
+        app.stage.addChild(this.#graphics); */
     }
 
-    #initGraphics(color: number): PIXI.Graphics {
+    /* #initGraphics(color: number): PIXI.Graphics {
+        
         let g = new PIXI.Graphics();
         g.beginFill(color);
         g.lineStyle(Hex.defaultLineStyle);
@@ -132,18 +138,18 @@ class Hex {
         }
 
         return g;
-    }
+    } */
 
-    static axialToRect(q: number, r: number): {x: number, y: number} {
+    /* static axialToRect(q: number, r: number): {x: number, y: number} {
         return {
-            x: Hex.size * 3/2 * q,
-            y: Hex.size * (Hex.s32 * q + Hex.s3 * r)
+            x: Hex.#size * 3/2 * q,
+            y: Hex.#size * (Hex.#s32 * q + Hex.#s3 * r)
         };
-    }
+    } */
 
-    static rectToAxial(x: number, y: number): {q: number, r: number} {
-        let q = 2/3 * x / Hex.size;
-        let r = (-1/3 * x + Hex.s3/3 * y) / Hex.size;
+    /* static rectToAxial(x: number, y: number): {q: number, r: number} {
+        let q = 2/3 * x / Hex.#size;
+        let r = (-1/3 * x + Hex.#s3/3 * y) / Hex.#size;
         let s = -q - r;
 
         let rq = Math.round(q);
@@ -164,7 +170,7 @@ class Hex {
             q: rq,
             r: rr
         };
-    }
+    } */
 
     get q(): number {
         return this.#q;
@@ -174,17 +180,25 @@ class Hex {
         return this.#r;
     }
 
-    get graphics(): PIXI.Graphics {
+    get graphics(): Graphics {
         return this.#graphics;
     }
 
-    get style(): TerrainStyle {
-        return this.#style;
+    set graphics(graphics) {
+        this.#graphics = graphics;
     }
 
-    get color(): number | undefined {
+    /* get graphics(): PIXI.Graphics {
+        return this.#graphics;
+    } */
+
+    /* get style(): TerrainStyle {
+        return this.#style;
+    } */
+
+    /* get color(): number | undefined {
         return this.#style.color;
-    }
+    } */
 }
 
 export { Hex, HexStorage };
