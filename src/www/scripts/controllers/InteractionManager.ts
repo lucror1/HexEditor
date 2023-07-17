@@ -58,12 +58,9 @@ class InteractionManager {
         
         // If left click is being clicked, pan
         if ((evt.buttons & InteractionManager.#leftMouse) && this.#lastMousePos != null) {
-            /* console.log("Panning"); */
-            //console.log(displayManager.container.x);
             let dx = evt.clientX - this.#lastMousePos.x;
             let dy = evt.clientY - this.#lastMousePos.y;
-            displayManager.container.x += dx;
-            displayManager.container.y += dy;
+            displayManager.alterPan(dx, dy);
         }
 
         // Update last known position
@@ -90,27 +87,15 @@ class InteractionManager {
         if (this.#selected === null) {
             return;
         }
-        //this.#selected.graphics.tint = InteractionManager.#tintColor;
-        let g = this.#selected.graphics;
-        g.clear();
-        //g.beginFill(this.#selected.color);
-        g.beginFill(0x00ff00);
-        g.lineStyle(DisplayManager.highlightLineStyle);
-        g.zIndex = DisplayManager.closerZIndex;
-        g.drawPolygon(DisplayManager.hexPoints);
+
+        displayManager.highlightHex(this.#selected);
     }
 
     #unselectHex() {
         if (this.#selected !== null) {
-            //this.#selected.graphics.tint = 0xffffff;
-            let g = this.#selected.graphics;
-            g.clear();
-            //g.beginFill(this.#selected.color);
-            g.beginFill(0x00ff00);
-            g.lineStyle(DisplayManager.defaultLineStyle);
-            g.zIndex = DisplayManager.defaultZIndex;
-            g.drawPolygon(DisplayManager.hexPoints);
             this.#selected = null;
+
+            displayManager.unhighlightHex(this.#selected);
         }
     }
 }

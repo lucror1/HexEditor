@@ -58,6 +58,34 @@ class DisplayManager {
         this.#container.addChild(hex.graphics);
     }
 
+    // TODO: create method to totally redraw hex based only on the state of the hex
+    // Also, add highlighted bool to hex
+    highlightHex(hex: Hex) {
+        let g = hex.graphics;
+        g.clear();
+        g.beginFill(0x00ff00);
+        g.lineStyle(DisplayManager.highlightLineStyle);
+        g.zIndex = DisplayManager.closerZIndex;
+        g.drawPolygon(DisplayManager.hexPoints);
+    }
+
+    unhighlightHex(hex: Hex) {
+        let g = hex.graphics;
+        g.clear();
+        g.beginFill(0x00ff00);
+        g.lineStyle(DisplayManager.defaultLineStyle);
+        g.zIndex = DisplayManager.defaultZIndex;
+        g.drawPolygon(DisplayManager.hexPoints);
+    }
+
+    // Shift the pan in the direction indicated by dx and dy
+    // TODO: add clamping in panning
+    alterPan(dx: number, dy: number) {
+        this.#container.x += dx;
+        this.#container.y += dy;
+    }
+
+    // Alter the scale by the amount shown, with clamping
     incrementScale(val: number) {
         this.#scale += val;
         this.#scale = Math.min(this.#scale, DisplayManager.#maxScale)
