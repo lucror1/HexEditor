@@ -1,19 +1,15 @@
-// This file is responsible for adding, removing, and modifying the displayed hexes
 import * as PIXI from "pixi.js";
 
 import { Hex, RectCoord, AxialCoord } from "../models/Hex";
 import { app } from "../Singletons.js";
+import { terrainMap } from "../Terrain.js";
 
 class DisplayManager {
-    // Display a hex at the correct point on screen
-    // Convert between TerrainType and actual visible style
-    // Have a function to highlight/unhighlight a hex
-
     // A bunch of settings and conveinence calculations for drawing hexes
     static #size = 25;
     static #s3 = Math.sqrt(3);
     static #s32 = Math.sqrt(3)/2;
-    static hexPoints = [
+    static #hexPoints = [
         {x: DisplayManager.#size * 2,   y: DisplayManager.#s32*DisplayManager.#size     },
         {x: DisplayManager.#size * 3/2, y: DisplayManager.#s32*DisplayManager.#size * 2 },
         {x: DisplayManager.#size / 2,   y: DisplayManager.#s32*DisplayManager.#size * 2 },
@@ -21,19 +17,19 @@ class DisplayManager {
         {x: DisplayManager.#size/2,     y: 0                                            },
         {x: DisplayManager.#size * 3/2, y: 0                                            }
     ];
-    static defaultZIndex = 0;
-    static furtherZIndex = -1;
-    static closerZIndex = 1;
+    static #defaultZIndex = 0;
+    static #furtherZIndex = -1;
+    static #closerZIndex = 1;
     
     static #minScale = 0.5;
     static #maxScale = 2.0;
 
-    static defaultLineStyle: PIXI.ILineStyleOptions = {
+    static #defaultLineStyle: PIXI.ILineStyleOptions = {
         width: 1,
         color: 0x000000,
         alignment: 0
     };
-    static highlightLineStyle: PIXI.ILineStyleOptions = {
+    static #highlightLineStyle: PIXI.ILineStyleOptions = {
         width: 4,
         color: 0xffff00,
         alignment: 0.5
@@ -54,28 +50,7 @@ class DisplayManager {
 
     drawHex(hex: Hex) {
         this.#initGraphics(hex);
-        //app.stage.addChild(hex.graphics);
         this.#container.addChild(hex.graphics);
-    }
-
-    // TODO: create method to totally redraw hex based only on the state of the hex
-    // Also, add highlighted bool to hex
-    highlightHex(hex: Hex) {
-        let g = hex.graphics;
-        g.clear();
-        g.beginFill(0x00ff00);
-        g.lineStyle(DisplayManager.highlightLineStyle);
-        g.zIndex = DisplayManager.closerZIndex;
-        g.drawPolygon(DisplayManager.hexPoints);
-    }
-
-    unhighlightHex(hex: Hex) {
-        let g = hex.graphics;
-        g.clear();
-        g.beginFill(0x00ff00);
-        g.lineStyle(DisplayManager.defaultLineStyle);
-        g.zIndex = DisplayManager.defaultZIndex;
-        g.drawPolygon(DisplayManager.hexPoints);
     }
 
     // Shift the pan in the direction indicated by dx and dy
@@ -103,19 +78,45 @@ class DisplayManager {
     }
 
     #initGraphics(hex: Hex): PIXI.Graphics {
+        this.redrawHex(hex);
+
         let g = hex.graphics;
-        g.beginFill(0x00ff00);
-        g.lineStyle(DisplayManager.defaultLineStyle);
-        g.drawPolygon(DisplayManager.hexPoints);
         g.pivot.x = g.width / 2;
         g.pivot.y = g.height / 2;
         let coords = this.axialToRect(hex.q, hex.r);
         g.x = coords.x;
         g.y = coords.y;
 
-        g.zIndex = DisplayManager.defaultZIndex;
+        return g;
+    }
 
+    redrawHex(hex: Hex) {
+        let g = hex.graphics;
+        g.clear();
+
+        const style = terrainMap.get(hex.terrain);
+
+        // Determine fill color
+        let fillColor = style.color;
+        g.beginFill(fillColor);
+
+        // Determine if highlighted
+        if (hex.highlighted) {
+            g.lineStyle(DisplayManager.#highlightLineStyle);
+            g.zIndex = DisplayManager.#closerZIndex;
+        } else {
+            g.lineStyle(DisplayManager.#defaultLineStyle);
+            g.zIndex = DisplayManager.#defaultZIndex;
+        }
+
+        g.drawPolygon(DisplayManager.#hexPoints);
+
+        this.#debugDraw(hex);
+    }
+
+    #debugDraw(hex: Hex) {
         if (DisplayManager.#debug.showCoords) {
+            let g = hex.graphics;
             const style = new PIXI.TextStyle({
                 fontSize: 12
             });
@@ -126,8 +127,6 @@ class DisplayManager {
             text.pivot.y = text.height / 2;
             g.addChild(text);
         }
-
-        return g;
     }
 
     get container() {

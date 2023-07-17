@@ -88,14 +88,15 @@ class InteractionManager {
             return;
         }
 
-        displayManager.highlightHex(this.#selected);
+        this.#selected.highlighted = true;
+        displayManager.redrawHex(this.#selected);
     }
 
     #unselectHex() {
         if (this.#selected !== null) {
+            this.#selected.highlighted = false;
+            displayManager.redrawHex(this.#selected);
             this.#selected = null;
-
-            displayManager.unhighlightHex(this.#selected);
         }
     }
 }

@@ -65,16 +65,18 @@ class Hex {
     #q: number;
     #r: number;
     #s: number;
-    #graphics: Graphics;
-    #terrain: TerrainType;
+    graphics: Graphics;
+    terrain: TerrainType;
+    highlighted: boolean;
 
     constructor(q: number, r: number,
                 terrainType: TerrainType=TerrainType.Plains) {
         this.#q = q;
         this.#r = r;
         this.#s = -q-r;
-        this.#terrain = terrainType;
-        this.#graphics = new Graphics;
+        this.terrain = terrainType;
+        this.graphics = new Graphics;
+        this.highlighted = false;
     }
 
     get q(): number {
@@ -83,14 +85,6 @@ class Hex {
 
     get r(): number {
         return this.#r;
-    }
-
-    get graphics(): Graphics {
-        return this.#graphics;
-    }
-
-    set graphics(graphics) {
-        this.#graphics = graphics;
     }
 }
 
