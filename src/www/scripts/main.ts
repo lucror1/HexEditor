@@ -1,8 +1,7 @@
 import * as PIXI from "pixi.js";
 
 import { app, hexStorage } from "./Singletons.js";
-import { Hex, HexStorage } from "./models/Hex.js";
-import { InteractionManager } from "./controllers/InteractionManager.js";
+import { Hex } from "./models/Hex.js";
 
 // Load assets
 PIXI.Assets.init({

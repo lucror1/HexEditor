@@ -30,6 +30,9 @@ class InteractionManager {
         document.addEventListener("keydown", (evt: KeyboardEvent) => {
             this.handleKey(evt);
         });
+        document.addEventListener("wheel", (evt: WheelEvent) => {
+            this.handleWheel(evt);
+        });
     }
 
     handlePointerDown(evt: MouseEvent) {
@@ -73,6 +76,10 @@ class InteractionManager {
                 this.#unselectHex();
                 break;
         }
+    }
+
+    handleWheel(evt: WheelEvent) {
+        displayManager.incrementScale(-Math.sign(evt.deltaY) * 0.1);
     }
 
     #selectHex(evt: MouseEvent) {

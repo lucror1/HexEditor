@@ -24,6 +24,9 @@ class DisplayManager {
     static defaultZIndex = 0;
     static furtherZIndex = -1;
     static closerZIndex = 1;
+    
+    static #minScale = 0.5;
+    static #maxScale = 2.0;
 
     static defaultLineStyle: PIXI.ILineStyleOptions = {
         width: 1,
@@ -42,8 +45,10 @@ class DisplayManager {
     };
 
     #container: PIXI.Container;
+    #scale: number;
 
     constructor() {
+        this.#scale = 1.0;
         this.#initContainer();
     }
 
@@ -53,10 +58,18 @@ class DisplayManager {
         this.#container.addChild(hex.graphics);
     }
 
+    incrementScale(val: number) {
+        this.#scale += val;
+        this.#scale = Math.min(this.#scale, DisplayManager.#maxScale)
+        this.#scale = Math.max(this.#scale, DisplayManager.#minScale);
+        this.#container.scale.set(this.#scale);
+    }
+
     #initContainer() {
         // Create an empty container to allow panning
         this.#container = new PIXI.Container();
         this.#container.sortableChildren = true;
+        this.#container.scale.set(this.#scale);
         app.stage.addChild(this.#container);
         
     }
@@ -93,12 +106,15 @@ class DisplayManager {
         return this.#container;
     }
 
-    axialToRect(q: number, r: number, applyPan: boolean=true): RectCoord {
+    axialToRect(q: number, r: number, applyTransform: boolean=true): RectCoord {
         // Need to account for the shift from the container
         let x = DisplayManager.#size * 3/2 * q;
         let y = DisplayManager.#size * (DisplayManager.#s32 * q + DisplayManager.#s3 * r);
 
-        if (applyPan) {
+        if (applyTransform) {
+            x *= this.#container.scale.x;
+            y *= this.#container.scale.y;
+
             x += this.#container.x;
             y += this.#container.y;
         }
@@ -109,10 +125,13 @@ class DisplayManager {
        };
     }
     
-    rectToAxial(x: number, y: number, applyPan: boolean=true): AxialCoord {
-        if (applyPan) {
+    rectToAxial(x: number, y: number, applyTransform: boolean=true): AxialCoord {
+        if (applyTransform) {
             x -= this.#container.x;
             y -= this.#container.y;
+
+            x /= this.#container.scale.x;
+            y /= this.#container.scale.y;
         }
 
         // Need to account for the shift from the container
