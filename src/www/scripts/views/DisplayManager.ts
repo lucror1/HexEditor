@@ -1,7 +1,7 @@
 // This file is responsible for adding, removing, and modifying the displayed hexes
 import * as PIXI from "pixi.js";
 
-import { Hex } from "../models/Hex";
+import { Hex, RectCoord, AxialCoord } from "../models/Hex";
 import { app } from "../Singletons.js";
 
 class DisplayManager {
@@ -25,7 +25,6 @@ class DisplayManager {
     static furtherZIndex = -1;
     static closerZIndex = 1;
 
-    // TODO: make this into a nicer setup with more advanced style selection
     static defaultLineStyle: PIXI.ILineStyleOptions = {
         width: 1,
         color: 0x000000,
@@ -42,9 +41,24 @@ class DisplayManager {
         showCoords: false
     };
 
+    #container: PIXI.Container;
+
+    constructor() {
+        this.#initContainer();
+    }
+
     drawHex(hex: Hex) {
         this.#initGraphics(hex);
-        app.stage.addChild(hex.graphics);
+        //app.stage.addChild(hex.graphics);
+        this.#container.addChild(hex.graphics);
+    }
+
+    #initContainer() {
+        // Create an empty container to allow panning
+        this.#container = new PIXI.Container();
+        this.#container.sortableChildren = true;
+        app.stage.addChild(this.#container);
+        
     }
 
     #initGraphics(hex: Hex): PIXI.Graphics {
@@ -54,7 +68,7 @@ class DisplayManager {
         g.drawPolygon(DisplayManager.hexPoints);
         g.pivot.x = g.width / 2;
         g.pivot.y = g.height / 2;
-        let coords = DisplayManager.axialToRect(hex.q, hex.r);
+        let coords = this.axialToRect(hex.q, hex.r);
         g.x = coords.x;
         g.y = coords.y;
 
@@ -75,14 +89,33 @@ class DisplayManager {
         return g;
     }
 
-    static axialToRect(q: number, r: number): {x: number, y: number} {
+    get container() {
+        return this.#container;
+    }
+
+    axialToRect(q: number, r: number, applyPan: boolean=true): RectCoord {
+        // Need to account for the shift from the container
+        let x = DisplayManager.#size * 3/2 * q;
+        let y = DisplayManager.#size * (DisplayManager.#s32 * q + DisplayManager.#s3 * r);
+
+        if (applyPan) {
+            x += this.#container.x;
+            y += this.#container.y;
+        }
+
         return {
-            x: DisplayManager.#size * 3/2 * q,
-            y: DisplayManager.#size * (DisplayManager.#s32 * q + DisplayManager.#s3 * r)
+            x: x,
+            y: y
        };
     }
     
-    static rectToAxial(x: number, y: number): {q: number, r: number} {
+    rectToAxial(x: number, y: number, applyPan: boolean=true): AxialCoord {
+        if (applyPan) {
+            x -= this.#container.x;
+            y -= this.#container.y;
+        }
+
+        // Need to account for the shift from the container
         let q = 2/3 * x / DisplayManager.#size;
         let r = (-1/3 * x + DisplayManager.#s3/3 * y) / DisplayManager.#size;
         let s = -q - r;

@@ -10,7 +10,6 @@ const app = new Application({
     resizeTo: window,
     background: "#333333"
 });
-app.stage.sortableChildren = true;
 const hexStorage = new HexStorage();
 const interactionManager = new InteractionManager();
 const displayManager = new DisplayManager();
