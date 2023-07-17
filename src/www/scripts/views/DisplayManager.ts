@@ -60,9 +60,22 @@ class DisplayManager {
         this.#container.y += dy;
     }
 
+    scaleAtPoint(ds: number, point: RectCoord) {
+        // Set the pivot to the mouse's position
+        let local = this.#container.toLocal(point);
+        this.#container.pivot.set(local.x, local.y);
+
+        // Scale the container
+        this.scale(ds);
+
+        // After the scaling the pivot won't be on the mouse
+        // Need to shift to be on the mouse for scaling to look good
+        this.#container.position.set(point.x, point.y);
+    }
+
     // Alter the scale by the amount shown, with clamping
-    incrementScale(val: number) {
-        this.#scale += val;
+    scale(ds: number) {
+        this.#scale += ds;
         this.#scale = Math.min(this.#scale, DisplayManager.#maxScale)
         this.#scale = Math.max(this.#scale, DisplayManager.#minScale);
         this.#container.scale.set(this.#scale);
@@ -139,11 +152,10 @@ class DisplayManager {
         let y = DisplayManager.#size * (DisplayManager.#s32 * q + DisplayManager.#s3 * r);
 
         if (applyTransform) {
-            x *= this.#container.scale.x;
-            y *= this.#container.scale.y;
-
-            x += this.#container.x;
-            y += this.#container.y;
+            let p = new PIXI.Point(x, y);
+            p = this.#container.toGlobal(p);
+            x = p.x;
+            y = p.y;
         }
 
         return {
@@ -154,11 +166,10 @@ class DisplayManager {
     
     rectToAxial(x: number, y: number, applyTransform: boolean=true): AxialCoord {
         if (applyTransform) {
-            x -= this.#container.x;
-            y -= this.#container.y;
-
-            x /= this.#container.scale.x;
-            y /= this.#container.scale.y;
+            let p = new PIXI.Point(x, y);
+            p = this.#container.toLocal(p);
+            x = p.x;
+            y = p.y;
         }
 
         // Need to account for the shift from the container

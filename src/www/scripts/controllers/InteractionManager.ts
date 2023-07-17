@@ -76,7 +76,8 @@ class InteractionManager {
     }
 
     handleWheel(evt: WheelEvent) {
-        displayManager.incrementScale(-Math.sign(evt.deltaY) * 0.1);
+        let point = {x: evt.clientX, y: evt.clientY};
+        displayManager.scaleAtPoint(-Math.sign(evt.deltaY) * 0.1, point);
     }
 
     #selectHex(evt: MouseEvent) {

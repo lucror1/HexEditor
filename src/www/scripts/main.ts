@@ -2,6 +2,7 @@ import * as PIXI from "pixi.js";
 
 import { app, hexStorage } from "./Singletons.js";
 import { Hex } from "./models/Hex.js";
+import { TerrainType } from "./Terrain.js";
 
 // Load assets
 PIXI.Assets.init({

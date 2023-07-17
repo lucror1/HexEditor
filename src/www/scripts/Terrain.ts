@@ -17,7 +17,7 @@ const terrains = [
         }
     },
     {
-        name: "Forrest",
+        name: "Forest",
         style: {
             "color": 0x00ff00
         }
