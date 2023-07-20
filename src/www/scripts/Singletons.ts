@@ -5,6 +5,7 @@ import { Application } from "pixi.js";
 import { HexStorage } from "./models/Hex.js";
 import { InteractionManager } from "./controllers/InteractionManager.js";
 import { DisplayManager } from "./views/DisplayManager.js";
+import { Camera } from "./views/Camera.js";
 
 const app = new Application({
     resizeTo: window,
@@ -13,5 +14,6 @@ const app = new Application({
 const hexStorage = new HexStorage();
 const interactionManager = new InteractionManager();
 const displayManager = new DisplayManager();
+const camera = new Camera();
 
-export { app, hexStorage, interactionManager, displayManager };
+export { app, hexStorage, interactionManager, displayManager, camera };

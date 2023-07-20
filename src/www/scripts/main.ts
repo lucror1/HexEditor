@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 
 import { app, hexStorage } from "./Singletons.js";
 import { Hex } from "./models/Hex.js";
-import { TerrainType } from "./Terrain.js";
+import { DecorationTypes, TerrainTypes } from "./views/Style.js";
 
 // Load assets
 PIXI.Assets.init({
@@ -16,7 +16,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     for (let q = 0; q < 10; q++) {
         for (let r = 0; r < 10; r++) {
-            hexStorage.set(new Hex(q, r));
+            let decoration = null;
+            if (q === 1 && r === 1) {
+                decoration = DecorationTypes.Camp;
+            } else {
+                decoration = DecorationTypes.WoodenWall;
+            }
+
+            hexStorage.set(new Hex(q, r, TerrainTypes.Plains, decoration));
         }
     }
 });

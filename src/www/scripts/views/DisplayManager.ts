@@ -1,8 +1,8 @@
 import * as PIXI from "pixi.js";
 
-import { Hex, RectCoord, AxialCoord } from "../models/Hex";
-import { app } from "../Singletons.js";
-import { terrainMap } from "../Terrain.js";
+import { Hex, RectCoord, AxialCoord } from "../models/Hex.js";
+import { app, camera } from "../Singletons.js";
+import { DecorationTypes } from "./Style.js";
 
 class DisplayManager {
     // A bunch of settings and conveinence calculations for drawing hexes
@@ -20,9 +20,7 @@ class DisplayManager {
     static #defaultZIndex = 0;
     static #furtherZIndex = -1;
     static #closerZIndex = 1;
-    
-    static #minScale = 0.5;
-    static #maxScale = 2.0;
+    static #decorationZIndex = 2;
 
     static #defaultLineStyle: PIXI.ILineStyleOptions = {
         width: 1,
@@ -37,81 +35,73 @@ class DisplayManager {
 
     // TODO: remove this debug option
     static #debug = {
-        showCoords: false
+        showCoords: false,
+        showCenter: false,
+        showDecorationCenter: false
     };
 
-    #container: PIXI.Container;
-    #scale: number;
-
-    constructor() {
-        this.#scale = 1.0;
-        this.#initContainer();
-    }
-
+    // Only call this the first time a hex is being draw. For all future calls, use redrawHex
     drawHex(hex: Hex) {
         this.#initGraphics(hex);
-        this.#container.addChild(hex.graphics);
+        camera.container.addChild(hex.graphics);
+        camera.container.addChild(hex.decorationSprite);
     }
 
-    // Shift the pan in the direction indicated by dx and dy
-    // TODO: add clamping in panning
-    alterPan(dx: number, dy: number) {
-        this.#container.x += dx;
-        this.#container.y += dy;
-    }
+    async #initGraphics(hex: Hex) {
+        await this.redrawHex(hex);
 
-    scaleAtPoint(ds: number, point: RectCoord) {
-        // Set the pivot to the mouse's position
-        let local = this.#container.toLocal(point);
-        this.#container.pivot.set(local.x, local.y);
-
-        // Scale the container
-        this.scale(ds);
-
-        // After the scaling the pivot won't be on the mouse
-        // Need to shift to be on the mouse for scaling to look good
-        this.#container.position.set(point.x, point.y);
-    }
-
-    // Alter the scale by the amount shown, with clamping
-    scale(ds: number) {
-        this.#scale += ds;
-        this.#scale = Math.min(this.#scale, DisplayManager.#maxScale)
-        this.#scale = Math.max(this.#scale, DisplayManager.#minScale);
-        this.#container.scale.set(this.#scale);
-    }
-
-    #initContainer() {
-        // Create an empty container to allow panning
-        this.#container = new PIXI.Container();
-        this.#container.sortableChildren = true;
-        this.#container.scale.set(this.#scale);
-        app.stage.addChild(this.#container);
-        
-    }
-
-    #initGraphics(hex: Hex): PIXI.Graphics {
-        this.redrawHex(hex);
+        let coords = this.axialToRect(hex.q, hex.r);
 
         let g = hex.graphics;
         g.pivot.x = g.width / 2;
         g.pivot.y = g.height / 2;
-        let coords = this.axialToRect(hex.q, hex.r);
+
         g.x = coords.x;
         g.y = coords.y;
-
-        return g;
     }
 
-    redrawHex(hex: Hex) {
-        let g = hex.graphics;
+    // Redraw an *already drawn* hex to update its appearance
+    async redrawHex(hex: Hex) {
+        const g = hex.graphics;
+        const s = hex.decorationSprite;
         g.clear();
 
-        const style = terrainMap.get(hex.terrain);
-
-        // Determine fill color
-        let fillColor = style.color;
+        // Style according to the terrain
+        const terrainStyle = hex.terrain.style;
+        let fillColor = terrainStyle.color;
         g.beginFill(fillColor);
+
+        // Apply a terrain decoration if needed
+        const decoration = hex.decoration;
+        if (decoration !== null) {
+            s.zIndex = DisplayManager.#decorationZIndex;
+            PIXI.Assets.load(decoration.style.imgPath).then(texture => {
+                s.texture = texture;
+
+                let coords = this.axialToRect(hex.q, hex.r);
+                s.x = coords.x;
+                s.y = coords.y;
+
+                if (decoration.style.dx) {
+                    s.x += decoration.style.dx;
+                }
+                if (decoration.style.dy) {
+                    s.y += decoration.style.dy;
+                }
+
+                s.pivot.x = s.width / s.scale.x / 2;
+                s.pivot.y = s.height / s.scale.y / 2;
+
+                if (decoration.style.scale) {
+                    s.scale.set(decoration.style.scale);
+                } else {
+                    let xScale = DecorationTypes.DEFAULT.style.xScale;
+                    let yScale = DecorationTypes.DEFAULT.style.xScale;
+                    s.scale.set(decoration.style.xScale || xScale,
+                        decoration.style.yScale || yScale);
+                }
+            });
+        }
 
         // Determine if highlighted
         if (hex.highlighted) {
@@ -140,20 +130,23 @@ class DisplayManager {
             text.pivot.y = text.height / 2;
             g.addChild(text);
         }
+
+        if (DisplayManager.#debug.showCenter) {
+            let g = hex.graphics;
+            g.beginFill(0xff0000);
+            g.lineStyle(DisplayManager.#defaultLineStyle);
+            g.arc(g.width / 2, g.height / 2, 3, 0, 2*Math.PI);
+        }
     }
 
-    get container() {
-        return this.#container;
-    }
-
-    axialToRect(q: number, r: number, applyTransform: boolean=true): RectCoord {
+    axialToRect(q: number, r: number, toGlobal: boolean=false): RectCoord {
         // Need to account for the shift from the container
         let x = DisplayManager.#size * 3/2 * q;
         let y = DisplayManager.#size * (DisplayManager.#s32 * q + DisplayManager.#s3 * r);
 
-        if (applyTransform) {
+        if (toGlobal) {
             let p = new PIXI.Point(x, y);
-            p = this.#container.toGlobal(p);
+            p = camera.container.toGlobal(p);
             x = p.x;
             y = p.y;
         }
@@ -167,7 +160,7 @@ class DisplayManager {
     rectToAxial(x: number, y: number, applyTransform: boolean=true): AxialCoord {
         if (applyTransform) {
             let p = new PIXI.Point(x, y);
-            p = this.#container.toLocal(p);
+            p = camera.container.toLocal(p);
             x = p.x;
             y = p.y;
         }

@@ -1,4 +1,4 @@
-import { hexStorage, displayManager } from "../Singletons.js";
+import { hexStorage, displayManager, camera } from "../Singletons.js";
 import { AxialCoord, Hex, HexStorage, RectCoord } from "../models/Hex.js";
 import { DisplayManager } from "../views/DisplayManager.js";
 
@@ -60,7 +60,7 @@ class InteractionManager {
         if ((evt.buttons & InteractionManager.#leftMouse) && this.#lastMousePos != null) {
             let dx = evt.clientX - this.#lastMousePos.x;
             let dy = evt.clientY - this.#lastMousePos.y;
-            displayManager.alterPan(dx, dy);
+            camera.alterPan(dx, dy);
         }
 
         // Update last known position
@@ -77,7 +77,7 @@ class InteractionManager {
 
     handleWheel(evt: WheelEvent) {
         let point = {x: evt.clientX, y: evt.clientY};
-        displayManager.scaleAtPoint(-Math.sign(evt.deltaY) * 0.1, point);
+        camera.scaleAtPoint(-Math.sign(evt.deltaY) * 0.1, point);
     }
 
     #selectHex(evt: MouseEvent) {

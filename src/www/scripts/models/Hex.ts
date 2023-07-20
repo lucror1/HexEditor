@@ -1,6 +1,6 @@
-import { Graphics } from "pixi.js";
+import { Graphics, Sprite } from "pixi.js";
 
-import { TerrainType } from "../Terrain.js";
+import { DecorationType, DecorationTypes, TerrainType, TerrainTypes } from "../views/Style.js";
 import { displayManager } from "../Singletons.js";
 
 // Stores a 2D array of Hexes, allowing for negative indices
@@ -66,16 +66,21 @@ class Hex {
     #r: number;
     #s: number;
     graphics: Graphics;
+    decorationSprite: Sprite;
     terrain: TerrainType;
+    decoration: DecorationType
     highlighted: boolean;
 
     constructor(q: number, r: number,
-                terrainType: TerrainType=TerrainType.Plains) {
+                terrainType: TerrainType=TerrainTypes.Plains,
+                decorationType: DecorationType=null) {
         this.#q = q;
         this.#r = r;
         this.#s = -q-r;
         this.terrain = terrainType;
-        this.graphics = new Graphics;
+        this.decoration = decorationType;
+        this.graphics = new Graphics();
+        this.decorationSprite = new Sprite();
         this.highlighted = false;
     }
 
