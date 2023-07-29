@@ -2,6 +2,12 @@ import { hexStorage, displayManager, camera } from "../Singletons.js";
 import { AxialCoord, Hex, HexStorage, RectCoord } from "../models/Hex.js";
 import { DisplayManager } from "../views/DisplayManager.js";
 
+enum MouseTarget {
+    None,
+    Canvas,
+    Editor
+}
+
 class InteractionManager {
     // MouseEvent.buttons encodes which buttons are pressed as a bitmask
     static #leftMouse = 0b001;
@@ -9,13 +15,19 @@ class InteractionManager {
     static #middleMouse = 0b100;
 
     #pointerDownHex: AxialCoord;
-    #selected: Hex;
+    #selectedHex: Hex;
     #lastMousePos: RectCoord;
+    #mouseTarget: MouseTarget;
+    #editorPos: RectCoord;
 
     constructor() {
         this.#pointerDownHex = null;
-        this.#selected = null;
+        this.#selectedHex = null;
         this.#lastMousePos = null;
+        this.#mouseTarget = MouseTarget.None;
+
+        // TODO: create editor window here to prevent hardcoded values from being potentially wrong
+        this.#editorPos = {x: 20, y: 20};
 
         // Register event listeners
         document.addEventListener("pointerdown", (evt: MouseEvent) => {
@@ -41,29 +53,55 @@ class InteractionManager {
             return;
         }
 
-        this.#pointerDownHex = displayManager.rectToAxial(evt.clientX, evt.clientY);
+        if ((evt.target as HTMLElement).id === "editor-window") {
+            this.#mouseTarget = MouseTarget.Editor;
+        } else {
+            this.#mouseTarget = MouseTarget.Canvas;
+            this.#pointerDownHex = displayManager.rectToAxial(evt.clientX, evt.clientY);
+        }
     }
 
     handlePointerUp(evt: MouseEvent) {
-        let coord = displayManager.rectToAxial(evt.clientX, evt.clientY);
-        if (this.#pointerDownHex !== null && coord.q === this.#pointerDownHex.q
-            && coord.r === this.#pointerDownHex.r) {
-            this.#selectHex(evt);
+        if (this.#mouseTarget === MouseTarget.Canvas) {
+            let coord = displayManager.rectToAxial(evt.clientX, evt.clientY);
+            if (this.#pointerDownHex !== null && coord.q === this.#pointerDownHex.q
+                && coord.r === this.#pointerDownHex.r) {
+                this.#selectHex(evt);
+            }
         }
     }
 
     handlePointerMove(evt: MouseEvent) {
-        // A move has occured, prevent a hex from being selected
-        this.#pointerDownHex = null;
-        
-        // If left click is being clicked, pan
-        if ((evt.buttons & InteractionManager.#leftMouse) && this.#lastMousePos != null) {
-            let dx = evt.clientX - this.#lastMousePos.x;
-            let dy = evt.clientY - this.#lastMousePos.y;
-            camera.alterPan(dx, dy);
+        // Do nothing if the mouse isn't down
+        if ((evt.buttons & InteractionManager.#leftMouse) === 0) {
+            return;
         }
 
-        // Update last known position
+        // Compute distance moved by mouse if possible
+        let dx = 0;
+        let dy = 0;
+        if (this.#lastMousePos !== null) {
+            dx = evt.clientX - this.#lastMousePos.x;
+            dy = evt.clientY - this.#lastMousePos.y;
+        }
+
+        if (this.#mouseTarget === MouseTarget.Canvas) {
+            // A move has occured, prevent a hex from being selected
+            // TODO: prevent this deselection from happening if the mouse moves only a little
+            this.#pointerDownHex = null;
+            
+            // Pan the camera
+            camera.alterPan(dx, dy);
+        } else {
+            this.#editorPos.x -= dx;
+            this.#editorPos.y += dy;
+            let editor = this.#getEditorWindow();
+
+            editor.style.right = this.#editorPos.x.toString() + "px";
+            editor.style.top = this.#editorPos.y.toString() + "px";
+        }
+
+        // Update last known mouse position
         this.#lastMousePos = {x: evt.clientX, y: evt.clientY};
     }
 
@@ -76,29 +114,35 @@ class InteractionManager {
     }
 
     handleWheel(evt: WheelEvent) {
-        let point = {x: evt.clientX, y: evt.clientY};
-        camera.scaleAtPoint(-Math.sign(evt.deltaY) * 0.1, point);
+        if ((evt.target as HTMLElement).id !== "editor-window") {
+            let point = {x: evt.clientX, y: evt.clientY};
+            camera.scaleAtPoint(-Math.sign(evt.deltaY) * 0.1, point);
+        }
     }
 
     #selectHex(evt: MouseEvent) {
         this.#unselectHex();
 
         let coord = displayManager.rectToAxial(evt.clientX, evt.clientY);
-        this.#selected = hexStorage.get(coord.q, coord.r);
-        if (this.#selected === null) {
+        this.#selectedHex = hexStorage.get(coord.q, coord.r);
+        if (this.#selectedHex === null) {
             return;
         }
 
-        this.#selected.highlighted = true;
-        displayManager.redrawHex(this.#selected);
+        this.#selectedHex.highlighted = true;
+        displayManager.redrawHex(this.#selectedHex);
     }
 
     #unselectHex() {
-        if (this.#selected !== null) {
-            this.#selected.highlighted = false;
-            displayManager.redrawHex(this.#selected);
-            this.#selected = null;
+        if (this.#selectedHex !== null) {
+            this.#selectedHex.highlighted = false;
+            displayManager.redrawHex(this.#selectedHex);
+            this.#selectedHex = null;
         }
+    }
+
+    #getEditorWindow(): HTMLElement {
+        return document.querySelector("#editor-window");
     }
 }
 

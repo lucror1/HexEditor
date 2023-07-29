@@ -26,4 +26,8 @@ document.addEventListener("DOMContentLoaded", async () => {
             hexStorage.set(new Hex(q, r, TerrainTypes.Plains, decoration));
         }
     }
+
+    let root = document.createElement("div");
+    root.setAttribute("id", "editor-window");
+    document.querySelector("body").appendChild(root);
 });
