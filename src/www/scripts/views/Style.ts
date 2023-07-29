@@ -32,8 +32,10 @@ const TerrainTypes = {
     }),
     Moutain: new TerrainType("Mountain", {
         color: 0x4c4e52
-    })
+    }),
+    ALL: null
 }
+TerrainTypes.ALL = Object.keys(TerrainTypes).filter(terrain => terrain !== "ALL");
 
 // If scale exists, it should be applied to both x and y
 // If scale does not exist, then xScale and yScale should be applied when they exist
@@ -49,15 +51,27 @@ type DecorationStyle = {
 
 class DecorationType {
     #name: string;
+    #niceName: string;
     #style: DecorationStyle;
 
     constructor(name: string, style: DecorationStyle) {
         this.#name = name;
         this.#style = style;
+
+        let split = name.match(/[A-Z][a-z]+/g);
+        if (split === null) {
+            this.#niceName = "DEFAULT";
+        } else {
+            this.#niceName = split.join(" ");
+        }
     }
 
     get name() {
         return this.#name;
+    }
+
+    get niceName() {
+        return this.#niceName;
     }
 
     get style() {
@@ -270,8 +284,12 @@ const DecorationTypes = {
         imgPath: "img/map_icons/WoodenWall.png",
         xScale: 0.13,
         yScale: 0.17
-    })    
+    }),
+    ALL: null
 }
+DecorationTypes.ALL = Object.keys(DecorationTypes).filter(decoration => {
+    return decoration !== "ALL" && decoration !== "DEFAULT";
+});
 
 export {
     TerrainTypes, TerrainType, TerrainStyle,

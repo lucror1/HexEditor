@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    let root = document.createElement("div");
+    /* let root = document.createElement("div");
     root.setAttribute("id", "editor-window");
-    document.querySelector("body").appendChild(root);
+    document.querySelector("body").appendChild(root); */
 });
