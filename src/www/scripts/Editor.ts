@@ -1,4 +1,5 @@
-import { RectCoord } from "./models/Hex.js";
+import { displayManager } from "./Singletons.js";
+import { Hex, RectCoord } from "./models/Hex.js";
 import { DecorationTypes, TerrainTypes } from "./views/Style.js";
 
 class Editor {
@@ -7,15 +8,41 @@ class Editor {
     static #startY = 20;
 
     #element: HTMLElement;
+    #terrainInput: HTMLSelectElement;
+    #decorationInput: HTMLSelectElement;
     #x: number;
     #y: number;
+    #hex: Hex;
 
     constructor() {
         this.#x = Editor.#startX;
         this.#y = Editor.#startY;
         this.#element = this.#createElement();
+        this.#hex = null;
+
+        this.#addEventListeners();
 
         document.body.appendChild(this.#element);
+    }
+
+    setHex(hex: Hex) {
+        this.#hex = hex;
+        
+        // Handle deselection
+        if (hex === null) {
+            this.#element.style.display = "none";
+            return;
+        }
+
+        this.#element.style.display = "block";
+
+        this.#terrainInput.value = hex.terrain.name;
+        
+        if (hex.decoration !== null) {
+            this.#decorationInput.value = hex.decoration.name;
+        } else {
+            this.#decorationInput.value = "DEFAULT";
+        }
     }
 
     #createElement() {
@@ -46,6 +73,8 @@ class Editor {
                 select.appendChild(o);
             }
             terrain.appendChild(select);
+
+            this.#terrainInput = select;
         }
         elem.appendChild(terrain);
 
@@ -67,10 +96,40 @@ class Editor {
                 select.appendChild(o);
             }
             decoration.appendChild(select);
+
+            this.#decorationInput = select;
         }
         elem.appendChild(decoration);
 
+        // Hide the editor by default
+        elem.style.display = "none";
+
         return elem;
+    }
+
+    #addEventListeners() {
+        this.#terrainInput.addEventListener("change", evt => {
+            this.#terrainHandler(evt);
+        });
+        this.#decorationInput.addEventListener("change", evt => {
+            this.#decorationHandler(evt);
+        });
+    }
+
+    #terrainHandler(evt: Event) {
+        let ter = TerrainTypes[this.#terrainInput.value];
+        this.#hex.terrain = ter;
+        displayManager.redrawHex(this.#hex);
+    }
+
+    #decorationHandler(evt: Event) {
+        let dec = DecorationTypes[this.#decorationInput.value];
+        if (dec === DecorationTypes.DEFAULT) {
+            this.#hex.decoration = null;
+        } else {
+            this.#hex.decoration = dec;
+        }
+        displayManager.redrawHex(this.#hex);
     }
 
     get x() {
@@ -89,15 +148,6 @@ class Editor {
     set y(y) {
         this.#y = y;
         this.#element.style.top = y.toString() + "px";
-    }
-
-    get pos(): RectCoord {
-        return {x: this.#x, y: this.#y};
-    }
-
-    set pos(pos) {
-        this.x = pos.x;
-        this.y = pos.y;
     }
 }
 

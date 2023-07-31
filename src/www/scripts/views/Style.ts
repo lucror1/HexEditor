@@ -3,10 +3,10 @@ type TerrainStyle = {
 }
 
 class TerrainType {
-    #name: String;
+    #name: string;
     #style: TerrainStyle;
 
-    constructor(name: String, style: TerrainStyle) {
+    constructor(name: string, style: TerrainStyle) {
         this.#name = name;
         this.#style = style;
     }
@@ -30,7 +30,7 @@ const TerrainTypes = {
     River: new TerrainType("River", {
         color: 0x0000ff
     }),
-    Moutain: new TerrainType("Mountain", {
+    Mountain: new TerrainType("Mountain", {
         color: 0x4c4e52
     }),
     ALL: null
@@ -80,7 +80,7 @@ class DecorationType {
 }
 
 const DecorationTypes = {
-    DEFAULT: new DecorationType("DEFAULT", {
+    DEFAULT: new DecorationType("None", {
         imgPath: null,
         scale: 0.15,
         xScale: 0.15,
@@ -288,7 +288,7 @@ const DecorationTypes = {
     ALL: null
 }
 DecorationTypes.ALL = Object.keys(DecorationTypes).filter(decoration => {
-    return decoration !== "ALL" && decoration !== "DEFAULT";
+    return decoration !== "ALL";
 });
 
 export {

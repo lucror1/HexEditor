@@ -76,6 +76,7 @@ class DisplayManager {
         if (decoration !== null) {
             s.zIndex = DisplayManager.#decorationZIndex;
             PIXI.Assets.load(decoration.style.imgPath).then(texture => {
+                s.alpha = 1;
                 s.texture = texture;
 
                 let coords = this.axialToRect(hex.q, hex.r);
@@ -101,6 +102,8 @@ class DisplayManager {
                         decoration.style.yScale || yScale);
                 }
             });
+        } else {
+            s.alpha = 0;
         }
 
         // Determine if highlighted

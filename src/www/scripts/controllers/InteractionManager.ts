@@ -53,12 +53,6 @@ class InteractionManager {
             return;
         }
 
-        /* if ((evt.target as HTMLElement).id === "editor-window") {
-            this.#mouseTarget = MouseTarget.Editor;
-        } else {
-            this.#mouseTarget = MouseTarget.Canvas;
-            this.#pointerDownHex = displayManager.rectToAxial(evt.clientX, evt.clientY);
-        } */
         if ((evt.target as HTMLElement).tagName === "CANVAS") {
             this.#mouseTarget = MouseTarget.Canvas;
             this.#pointerDownHex = displayManager.rectToAxial(evt.clientX, evt.clientY);
@@ -131,6 +125,8 @@ class InteractionManager {
 
         this.#selectedHex.highlighted = true;
         displayManager.redrawHex(this.#selectedHex);
+
+        this.#editor.setHex(this.#selectedHex);
     }
 
     #unselectHex() {
@@ -138,6 +134,8 @@ class InteractionManager {
             this.#selectedHex.highlighted = false;
             displayManager.redrawHex(this.#selectedHex);
             this.#selectedHex = null;
+
+            this.#editor.setHex(null);
         }
     }
 

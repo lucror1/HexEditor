@@ -16,14 +16,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     
     for (let q = 0; q < 10; q++) {
         for (let r = 0; r < 10; r++) {
-            let decoration = null;
-            if (q === 1 && r === 1) {
-                decoration = DecorationTypes.Camp;
-            } else {
-                decoration = DecorationTypes.WoodenWall;
-            }
-
-            hexStorage.set(new Hex(q, r, TerrainTypes.Plains, decoration));
+            hexStorage.set(new Hex(q, r));
         }
     }
 
